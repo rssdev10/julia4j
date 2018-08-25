@@ -1,4 +1,4 @@
-#Julia for Java binding
+# Julia for Java binding
 
 This is initial Java binding implementation.
 For now there are supported only basic functions
@@ -6,11 +6,11 @@ for running scripts and types converting.
 
 See https://docs.julialang.org/en/stable/manual/embedding/
 
-Class org.julia.jni.swig.Julia4J implements JNI calls to libjulia. See [example](src/test/java/Class org.julia.jni.swig.Julia4J implements JNI calls to libjulia. See [example](src/test/java/Class org.julia.jni.swig.Julia4J implements JNI calls to libjulia. See [example](src/test/java/Julia4JNITest.java)
+Class org.julia.jni.swig.Julia4J implements JNI calls to libjulia. See [example](src/test/java/Julia4JJNITest.java)
 
 Classes from package class org.julia.scripting implement jsr233 scripting interface.  See [example](src/test/java/Julia4JScriptingTest.java)
 
-###Examples
+### Examples
 
 Example 1:
 ```java
@@ -65,19 +65,19 @@ engine.eval("println(x);", newContext);
 
 // example from https://docs.oracle.com/javase/7/docs/technotes/guides/scripting/programmer_guide/
 ```
-###Prerequisites
+### Prerequisites
 
 For running: julia should be installed.
 
 For building with binaries: julia, julia-devel, Java 8, swig, gcc, make.
 
-###How to build
+### How to build
 These sources doesn't include native binary libraries. But you can build them manually by [`swig/build.sh`](swig/build.sh) script.
 Also see [swig/lib_src/Makefile](swig/lib_src/Makefile)
 
 Next run `./gradlew build`
 
-###TODO
+### TODO
 
 * automate native binaries building. For now the only Mac OS library building hardcoded
 * fix SWIG related class names like *SWIGTYPE_p_jl_value_t*
