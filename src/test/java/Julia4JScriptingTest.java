@@ -12,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- *  Test of jsr223 Julia binding
- *
+ * Test of jsr223 Julia binding
+ * <p>
  * Created by rss on 25/08/2018
  */
 @SuppressWarnings("WeakerAccess")
@@ -56,23 +56,31 @@ public class Julia4JScriptingTest {
 
     @Test
     public void testReturnvalue() throws ScriptException {
-            ScriptEngineManager manager = new ScriptEngineManager();
-            ScriptEngine engine = manager.getEngineByName("julia");
+        ScriptEngineManager manager = new ScriptEngineManager();
+        ScriptEngine engine = manager.getEngineByName("julia");
 
-            engine.put("x", "hello");
-            // print global variable "x"
-            engine.eval("println(x);");
-            // the above line prints "hello"
+        engine.put("x", "hello");
+        // print global variable "x"
+        engine.eval("println(x);");
+        // the above line prints "hello"
 
-            // Now, pass a different script context
-            ScriptContext newContext = new SimpleScriptContext();
-            Bindings engineScope = newContext.getBindings(ScriptContext.ENGINE_SCOPE);
+        // Now, pass a different script context
+        ScriptContext newContext = new SimpleScriptContext();
+        Bindings engineScope = newContext.getBindings(ScriptContext.ENGINE_SCOPE);
 
-            // add new variable "x" to the new engineScope
-            engineScope.put("x", "world");
+        // add new variable "x" to the new engineScope
+        engineScope.put("x", "world");
 
-            // execute the same script - but this time pass a different script context
-            engine.eval("println(x);", newContext);
-            // the above line prints "world"
+        // execute the same script - but this time pass a different script context
+        engine.eval("println(x);", newContext);
+        // the above line prints "world"
+
+        // Add some numeric values
+        engineScope.put("a", 2);
+        engineScope.put("b", 10);
+        engine.eval("for i in 1:5 println(\"Value: $(a * b * i)\"); end", newContext);
+
+        Object result = engine.eval("a + b", newContext);
+        assertEquals(12, Julia4J.jl_unbox_int64((SWIGTYPE_p_jl_value_t) result));
     }
 }

@@ -36,9 +36,9 @@ public class JuliaEngine  extends AbstractScriptEngine {
                 String formatStr;
                 // TODO: add direct write of values without text transformations
                 if (entry.getValue() instanceof Number) {
-                    formatStr = "%s = %s";
+                    formatStr = "%s = %s;\n";
                 } else {
-                    formatStr = "%s = \"%s\"";
+                    formatStr = "%s = \"%s\";\n";
                 }
                 builder.append(String.format(formatStr, entry.getKey(), entry.getValue()));
             });
