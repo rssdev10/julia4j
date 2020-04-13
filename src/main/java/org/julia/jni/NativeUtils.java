@@ -153,7 +153,7 @@ public class NativeUtils {
         }
         String osName = System.getProperty("os.name").toLowerCase();
         if (osName.startsWith("mac os")) {
-            path += "darwin/" + libname + ".dylib";
+            path += "darwin/" + libname + ".jnilib";
         } else if (osName.startsWith("linux")) {
             path += "linux/" + libname + ".so";
         } else if (osName.startsWith("windows")) {
