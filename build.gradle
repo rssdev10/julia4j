@@ -3,9 +3,6 @@ buildscript {
         jcenter()
         mavenLocal()
     }
-    dependencies {
-        classpath("org.junit.platform:junit-platform-gradle-plugin:1.2.0") // junit5
-    }
 }
 
 plugins {
@@ -21,10 +18,13 @@ repositories {
     mavenCentral()
 }
 
-apply plugin: 'org.junit.platform.gradle.plugin'
+
+
+test {
+    useJUnitPlatform()
+}
 
 dependencies {
-    testCompile("org.junit.jupiter:junit-jupiter-api:5.2.0")
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.2.0")
-    testRuntime("org.junit.vintage:junit-vintage-engine:5.2.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.2.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.2.0")
 }
