@@ -79,7 +79,7 @@ Next run `./gradlew build`
 
 ### TODO
 
-* automate native binaries building. For now the only Mac OS library building hardcoded
+* automate native binaries building. For now, added CMake. Mac OS works with manual copy only due to rpath issue. Linux platform might be working but with running `make install` after `build.sh`. And proper environment variables is also required both for JDK and Julia.
 * fix SWIG related class names like *SWIGTYPE_p_jl_value_t*
 * implement convenient Java<->julia_JNI types converters
 * implement all methods of scripting engine/factory instead of stubs
