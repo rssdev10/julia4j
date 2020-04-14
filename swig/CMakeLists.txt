@@ -23,3 +23,8 @@ set_target_properties(julia4j PROPERTIES
   POSITION_INDEPENDENT_CODE ON)
 target_include_directories(julia4j PUBLIC ${JNI_INCLUDE_DIRS} ${Julia_INCLUDE_DIRS})
 target_link_libraries(julia4j ${JNI_LIBRARIES} ${Julia_LIBRARY} ${Julia_LIBRARY_DIR})
+
+string(TOLOWER ${CMAKE_SYSTEM_NAME} OUT_OS_NAME)
+install (TARGETS julia4j #${PROJECT_NAME}
+       LIBRARY DESTINATION ${PROJECT_SOURCE_DIR}/../src/main/resources/native/64/${OUT_OS_NAME}/
+)
