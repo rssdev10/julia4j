@@ -18,7 +18,7 @@ extern const char *jl_pathname_for_handle(void *handle);
 
 extern void jl_preload_sysimg_so(const char *fname);
 extern void jl_set_sysimg_so(void *handle);
-extern ios_t *jl_create_system_image(void);
+extern ios_t *jl_create_system_image(void *);
 extern void jl_save_system_image(const char *fname);
 extern void jl_restore_system_image(const char *fname);
 extern void jl_restore_system_image_data(const char *buf, size_t len);
@@ -59,11 +59,11 @@ extern jl_sym_t *jl_symbol_n(const char *str, size_t len) ;
 extern jl_sym_t *jl_gensym(void);
 extern jl_sym_t *jl_tagged_gensym(const char *str, int32_t len);
 extern jl_sym_t *jl_get_root_symbol(void);
-extern jl_value_t *jl_generic_function_def(jl_sym_t *name,
-                                                 jl_module_t *module,
-                                                 jl_value_t **bp, jl_value_t *bp_owner,
-                                                 jl_binding_t *bnd);
-extern void jl_method_def(jl_svec_t *argdata, jl_code_info_t *f, jl_module_t *module);
+// extern jl_value_t *jl_generic_function_def(jl_sym_t *name,
+//                                                  jl_module_t *module,
+//                                                  std::atomic<jl_value_t*> *bp, jl_value_t *bp_owner,
+//                                                  jl_binding_t *bnd);
+// extern jl_method_t *jl_method_def(jl_svec_t *argdata, jl_methtable_t *mt, jl_code_info_t *f, jl_module_t *module);
 extern jl_code_info_t *jl_code_for_staged(jl_method_instance_t *linfo);
 extern jl_code_info_t *jl_copy_code_info(jl_code_info_t *src);
 extern size_t jl_get_world_counter(void);
