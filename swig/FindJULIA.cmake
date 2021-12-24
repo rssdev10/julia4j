@@ -1,4 +1,5 @@
 # Original FindJulia.cmake from https://github.com/QuantStack/xtensor-julia-cookiecutter/blob/master/%7B%7Bcookiecutter.github_project_name%7D%7D/cmake/FindJulia.cmake
+# https://github.com/JuliaInterop/libcxxwrap-julia/blob/main/FindJulia.cmake
 
 if(Julia_FOUND)
     return()
@@ -73,6 +74,7 @@ elseif(Julia_EXECUTABLE)
 elseif(Julia_PREFIX)
     set(Julia_INCLUDE_DIRS ${Julia_PREFIX}/include/julia)
 endif()
+set(Julia_INCLUDE_DIRS ${Julia_INCLUDE_DIRS};$ENV{includedir})
 MESSAGE(STATUS "Julia_INCLUDE_DIRS:   ${Julia_INCLUDE_DIRS}")
 
 ###################
@@ -80,7 +82,7 @@ MESSAGE(STATUS "Julia_INCLUDE_DIRS:   ${Julia_INCLUDE_DIRS}")
 ###################
 
 if(WIN32)
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES} .a)
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES} .a;.dll)
 endif()
 
 if(Julia_EXECUTABLE)
@@ -162,6 +164,10 @@ if(Julia_EXECUTABLE)
     )
     string(REGEX REPLACE "\n" "" Julia_WORD_SIZE "${Julia_WORD_SIZE}")
     MESSAGE(STATUS "Julia_WORD_SIZE:      ${Julia_WORD_SIZE}")
+endif()
+
+if($ENV{target} MATCHES "^i686.*")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse -msse2")
 endif()
 
 ###########################
