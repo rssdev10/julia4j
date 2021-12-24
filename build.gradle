@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
         mavenLocal()
     }
 }
@@ -10,9 +10,9 @@ plugins {
 }
 
 group 'org.julia'
-version '0.0.1-SNAPSHOT'
+version '0.0.2-SNAPSHOT'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 1.11
 
 repositories {
     mavenCentral()
@@ -25,6 +25,6 @@ test {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.2.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.2.0")
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.8.2')
+    testImplementation('org.junit.jupiter:junit-jupiter-engine:5.8.2')
 }
