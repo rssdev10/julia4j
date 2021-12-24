@@ -49,6 +49,7 @@ public class NativeUtils {
      */
     private static final int MIN_PREFIX_LENGTH = 3;
     public static final String NATIVE_FOLDER_PATH_PREFIX = "nativeutils";
+    public static final String JAVA_LIBRARY_PATH = "java.library.path";
 
     /**
      * Temporary directory which will contain the DLLs.
@@ -108,6 +109,7 @@ public class NativeUtils {
             throw new FileNotFoundException("File " + path + " was not found inside JAR.");
         }
 
+        checkJavaLibraryPath();
         try {
             System.load(temp.getAbsolutePath());
         } finally {
@@ -175,11 +177,23 @@ public class NativeUtils {
             final Field lib = ClassLoader.class.getDeclaredField("loadedLibraryNames");
             lib.setAccessible(true);
             Object list = lib.get(ClassLoader.getSystemClassLoader());
-            if (list instanceof List)
+            if (list instanceof List<?>)
                 return (List<String>) list;
         } catch (IllegalAccessException | NoSuchFieldException e) {
             e.printStackTrace();
         }
         return Collections.emptyList();
+    }
+
+    private static void checkJavaLibraryPath() {
+        String javaLibraryPath = System.getProperty(JAVA_LIBRARY_PATH);
+        String javaHome = System.getProperty("java.home");
+        if (!javaLibraryPath.contains(javaHome)) {
+            System.setProperty(JAVA_LIBRARY_PATH,
+                    javaLibraryPath + File.pathSeparator
+                            + javaHome + File.separator + "lib"
+            );
+        }
+        System.out.println(System.getProperty(JAVA_LIBRARY_PATH));
     }
 }
