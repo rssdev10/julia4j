@@ -5,6 +5,7 @@
  %{
 /* Put header files here or function declarations like below */
  #include "julia.h"
+ #include "string_wrapper.h"
  %}
 
 extern void jl_init(void);
@@ -98,3 +99,7 @@ extern double jl_unbox_float64(jl_value_t *v) ;
 extern void *jl_unbox_voidpointer(jl_value_t *v) ;
 
 extern int jl_get_size(jl_value_t *val, size_t *pnt);
+
+
+// custom helpers
+extern char *jl_unbox_charpointer(jl_value_t *v) ;
