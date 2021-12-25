@@ -7,6 +7,7 @@ buildscript {
 
 plugins {
     id 'java'
+    id 'maven-publish'
 }
 
 group 'org.julia'
@@ -18,7 +19,17 @@ repositories {
     mavenCentral()
 }
 
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = group
+            artifactId = rootProject.name
+            version = version
 
+            from components.java
+        }
+    }
+}
 
 test {
     useJUnitPlatform()
