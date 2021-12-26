@@ -18,8 +18,6 @@ swig_add_library(julia4j
   OUTPUT_DIR ${PROJECT_BINARY_DIR}/../src/main/java/org/julia/jni/swig
     SOURCES	julia4j.i)
 
-include_directories("helpers")
-
 set_target_properties(julia4j PROPERTIES
   SWIG_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/java
   SWIG_USE_TARGET_INCLUDE_DIRECTORIES ON

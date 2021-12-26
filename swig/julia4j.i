@@ -5,7 +5,11 @@
  %{
 /* Put header files here or function declarations like below */
  #include "julia.h"
- #include "string_wrapper.h"
+
+char * jl_unbox_charpointer(jl_value_t *v) {
+     return (char *)jl_unbox_voidpointer(v);
+ }
+
  %}
 
 extern void jl_init(void);
