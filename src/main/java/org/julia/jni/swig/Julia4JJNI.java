@@ -31,6 +31,14 @@ public class Julia4JJNI {
   public final static native long jl_expand(long jarg1, long jarg2);
   public final static native long jl_expand_stmt(long jarg1, long jarg2);
   public final static native long jl_eval_string(String jarg1);
+  public final static native long jl_apply_generic(long jarg1, long jarg2, long jarg3);
+  public final static native long jl_invoke(long jarg1, long jarg2, long jarg3, long jarg4);
+  public final static native int jl_invoke_api(long jarg1);
+  public final static native long jl_call(long jarg1, long jarg2, int jarg3);
+  public final static native long jl_call0(long jarg1);
+  public final static native long jl_call1(long jarg1, long jarg2);
+  public final static native long jl_call2(long jarg1, long jarg2, long jarg3);
+  public final static native long jl_call3(long jarg1, long jarg2, long jarg3, long jarg4);
   public final static native long jl_new_bits(long jarg1, long jarg2);
   public final static native long jl_new_struct(long jarg1);
   public final static native long jl_new_structv(long jarg1, long jarg2, long jarg3);
@@ -67,6 +75,7 @@ public class Julia4JJNI {
   public final static native long jl_box_float32(float jarg1);
   public final static native long jl_box_float64(double jarg1);
   public final static native long jl_box_voidpointer(long jarg1);
+  public final static native long jl_box_uint8pointer(long jarg1);
   public final static native long jl_box_ssavalue(long jarg1);
   public final static native long jl_box_slotnumber(long jarg1);
   public final static native byte jl_unbox_bool(long jarg1);
@@ -81,5 +90,8 @@ public class Julia4JJNI {
   public final static native float jl_unbox_float32(long jarg1);
   public final static native double jl_unbox_float64(long jarg1);
   public final static native long jl_unbox_voidpointer(long jarg1);
+  public final static native long jl_unbox_uint8pointer(long jarg1);
   public final static native int jl_get_size(long jarg1, long jarg2);
+  public final static native String jl_unbox_string(long jarg1);
+  public final static native void jl_show(long jarg1);
 }

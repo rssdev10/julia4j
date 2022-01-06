@@ -106,6 +106,45 @@ public class Julia4J {
     return (cPtr == 0) ? null : new SWIGTYPE_p_jl_value_t(cPtr, false);
   }
 
+  public static SWIGTYPE_p_jl_value_t jl_apply_generic(SWIGTYPE_p_jl_value_t F, SWIGTYPE_p_p_jl_value_t args, long nargs) {
+    long cPtr = Julia4JJNI.jl_apply_generic(SWIGTYPE_p_jl_value_t.getCPtr(F), SWIGTYPE_p_p_jl_value_t.getCPtr(args), nargs);
+    return (cPtr == 0) ? null : new SWIGTYPE_p_jl_value_t(cPtr, false);
+  }
+
+  public static SWIGTYPE_p_jl_value_t jl_invoke(SWIGTYPE_p_jl_value_t F, SWIGTYPE_p_p_jl_value_t args, long nargs, SWIGTYPE_p_jl_method_instance_t meth) {
+    long cPtr = Julia4JJNI.jl_invoke(SWIGTYPE_p_jl_value_t.getCPtr(F), SWIGTYPE_p_p_jl_value_t.getCPtr(args), nargs, SWIGTYPE_p_jl_method_instance_t.getCPtr(meth));
+    return (cPtr == 0) ? null : new SWIGTYPE_p_jl_value_t(cPtr, false);
+  }
+
+  public static int jl_invoke_api(SWIGTYPE_p_jl_code_instance_t linfo) {
+    return Julia4JJNI.jl_invoke_api(SWIGTYPE_p_jl_code_instance_t.getCPtr(linfo));
+  }
+
+  public static SWIGTYPE_p_jl_value_t jl_call(SWIGTYPE_p_jl_function_t f, SWIGTYPE_p_p_jl_value_t args, int nargs) {
+    long cPtr = Julia4JJNI.jl_call(SWIGTYPE_p_jl_function_t.getCPtr(f), SWIGTYPE_p_p_jl_value_t.getCPtr(args), nargs);
+    return (cPtr == 0) ? null : new SWIGTYPE_p_jl_value_t(cPtr, false);
+  }
+
+  public static SWIGTYPE_p_jl_value_t jl_call0(SWIGTYPE_p_jl_function_t f) {
+    long cPtr = Julia4JJNI.jl_call0(SWIGTYPE_p_jl_function_t.getCPtr(f));
+    return (cPtr == 0) ? null : new SWIGTYPE_p_jl_value_t(cPtr, false);
+  }
+
+  public static SWIGTYPE_p_jl_value_t jl_call1(SWIGTYPE_p_jl_function_t f, SWIGTYPE_p_jl_value_t a) {
+    long cPtr = Julia4JJNI.jl_call1(SWIGTYPE_p_jl_function_t.getCPtr(f), SWIGTYPE_p_jl_value_t.getCPtr(a));
+    return (cPtr == 0) ? null : new SWIGTYPE_p_jl_value_t(cPtr, false);
+  }
+
+  public static SWIGTYPE_p_jl_value_t jl_call2(SWIGTYPE_p_jl_function_t f, SWIGTYPE_p_jl_value_t a, SWIGTYPE_p_jl_value_t b) {
+    long cPtr = Julia4JJNI.jl_call2(SWIGTYPE_p_jl_function_t.getCPtr(f), SWIGTYPE_p_jl_value_t.getCPtr(a), SWIGTYPE_p_jl_value_t.getCPtr(b));
+    return (cPtr == 0) ? null : new SWIGTYPE_p_jl_value_t(cPtr, false);
+  }
+
+  public static SWIGTYPE_p_jl_value_t jl_call3(SWIGTYPE_p_jl_function_t f, SWIGTYPE_p_jl_value_t a, SWIGTYPE_p_jl_value_t b, SWIGTYPE_p_jl_value_t c) {
+    long cPtr = Julia4JJNI.jl_call3(SWIGTYPE_p_jl_function_t.getCPtr(f), SWIGTYPE_p_jl_value_t.getCPtr(a), SWIGTYPE_p_jl_value_t.getCPtr(b), SWIGTYPE_p_jl_value_t.getCPtr(c));
+    return (cPtr == 0) ? null : new SWIGTYPE_p_jl_value_t(cPtr, false);
+  }
+
   public static SWIGTYPE_p_jl_value_t jl_new_bits(SWIGTYPE_p_jl_value_t bt, SWIGTYPE_p_void data) {
     long cPtr = Julia4JJNI.jl_new_bits(SWIGTYPE_p_jl_value_t.getCPtr(bt), SWIGTYPE_p_void.getCPtr(data));
     return (cPtr == 0) ? null : new SWIGTYPE_p_jl_value_t(cPtr, false);
@@ -285,6 +324,11 @@ public class Julia4J {
     return (cPtr == 0) ? null : new SWIGTYPE_p_jl_value_t(cPtr, false);
   }
 
+  public static SWIGTYPE_p_jl_value_t jl_box_uint8pointer(SWIGTYPE_p_unsigned_char x) {
+    long cPtr = Julia4JJNI.jl_box_uint8pointer(SWIGTYPE_p_unsigned_char.getCPtr(x));
+    return (cPtr == 0) ? null : new SWIGTYPE_p_jl_value_t(cPtr, false);
+  }
+
   public static SWIGTYPE_p_jl_value_t jl_box_ssavalue(long x) {
     long cPtr = Julia4JJNI.jl_box_ssavalue(x);
     return (cPtr == 0) ? null : new SWIGTYPE_p_jl_value_t(cPtr, false);
@@ -344,8 +388,21 @@ public class Julia4J {
     return (cPtr == 0) ? null : new SWIGTYPE_p_void(cPtr, false);
   }
 
+  public static SWIGTYPE_p_unsigned_char jl_unbox_uint8pointer(SWIGTYPE_p_jl_value_t v) {
+    long cPtr = Julia4JJNI.jl_unbox_uint8pointer(SWIGTYPE_p_jl_value_t.getCPtr(v));
+    return (cPtr == 0) ? null : new SWIGTYPE_p_unsigned_char(cPtr, false);
+  }
+
   public static int jl_get_size(SWIGTYPE_p_jl_value_t val, SWIGTYPE_p_size_t pnt) {
     return Julia4JJNI.jl_get_size(SWIGTYPE_p_jl_value_t.getCPtr(val), SWIGTYPE_p_size_t.getCPtr(pnt));
+  }
+
+  public static String jl_unbox_string(SWIGTYPE_p_jl_value_t v) {
+    return Julia4JJNI.jl_unbox_string(SWIGTYPE_p_jl_value_t.getCPtr(v));
+  }
+
+  public static void jl_show(SWIGTYPE_p_jl_value_t v) {
+    Julia4JJNI.jl_show(SWIGTYPE_p_jl_value_t.getCPtr(v));
   }
 
 }
