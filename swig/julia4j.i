@@ -6,9 +6,13 @@
 /* Put header files here or function declarations like below */
  #include "julia.h"
 
-char * jl_unbox_charpointer(jl_value_t *v) {
-     return (char *)jl_unbox_voidpointer(v);
- }
+char * jl_unbox_string(jl_value_t *v) {
+    return jl_string_data((char *)(v));
+}
+
+void *jl_show(jl_value_t *v) {
+   jl_static_show(jl_stdout_stream(), v);
+};
 
  %}
 
@@ -42,6 +46,18 @@ extern jl_value_t *jl_expand(jl_value_t *expr, jl_module_t *inmodule);
 extern jl_value_t *jl_expand_stmt(jl_value_t *expr, jl_module_t *inmodule);
 extern jl_value_t *jl_eval_string(const char *str);
 
+
+// calling into julia ---------------------------------------------------------
+
+extern jl_value_t *jl_apply_generic(jl_value_t *F, jl_value_t **args, uint32_t nargs);
+extern jl_value_t *jl_invoke(jl_value_t *F, jl_value_t **args, uint32_t nargs, jl_method_instance_t *meth);
+extern int32_t jl_invoke_api(jl_code_instance_t *linfo);
+
+extern jl_value_t *jl_call(jl_function_t *f, jl_value_t **args, int32_t nargs);
+extern jl_value_t *jl_call0(jl_function_t *f);
+extern jl_value_t *jl_call1(jl_function_t *f, jl_value_t *a);
+extern jl_value_t *jl_call2(jl_function_t *f, jl_value_t *a, jl_value_t *b);
+extern jl_value_t *jl_call3(jl_function_t *f, jl_value_t *a, jl_value_t *b, jl_value_t *c);
 
 // constructors
 extern jl_value_t *jl_new_bits(jl_value_t *bt, void *data);
@@ -86,6 +102,7 @@ extern jl_value_t *jl_box_uint64(uint64_t x);
 extern jl_value_t *jl_box_float32(float x);
 extern jl_value_t *jl_box_float64(double x);
 extern jl_value_t *jl_box_voidpointer(void *x);
+extern jl_value_t *jl_box_uint8pointer(uint8_t *x);
 extern jl_value_t *jl_box_ssavalue(size_t x);
 extern jl_value_t *jl_box_slotnumber(size_t x);
 
@@ -101,9 +118,11 @@ extern uint64_t jl_unbox_uint64(jl_value_t *v) ;
 extern float jl_unbox_float32(jl_value_t *v) ;
 extern double jl_unbox_float64(jl_value_t *v) ;
 extern void *jl_unbox_voidpointer(jl_value_t *v) ;
+extern uint8_t *jl_unbox_uint8pointer(jl_value_t *v) ;
 
 extern int jl_get_size(jl_value_t *val, size_t *pnt);
 
 
 // custom helpers
-extern char *jl_unbox_charpointer(jl_value_t *v) ;
+extern char *jl_unbox_string(jl_value_t *v) ;
+extern void jl_show(jl_value_t *v) ;
