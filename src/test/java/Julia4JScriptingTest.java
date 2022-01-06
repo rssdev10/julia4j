@@ -93,10 +93,11 @@ public class Julia4JScriptingTest {
         engine.put("x", "hello");
         // print global variable "x"
         engine.eval("res = join(fill(x, 10), \";\");");
-        Object result = engine.get("res");
 
-        String str = Julia4J.jl_unbox_charpointer((SWIGTYPE_p_jl_value_t) result);
-        assertEquals(String.join(";", Collections.nCopies(10, "hello")),
-                Julia4J.jl_unbox_charpointer((SWIGTYPE_p_jl_value_t) result));
+        SWIGTYPE_p_jl_value_t result = (SWIGTYPE_p_jl_value_t)engine.eval("res");
+        Julia4J.jl_show(result);
+
+        String str = Julia4J.jl_unbox_string((SWIGTYPE_p_jl_value_t) result);
+        assertEquals(String.join(";", Collections.nCopies(10, "hello")), str);
     }
 }
