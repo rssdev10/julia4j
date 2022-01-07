@@ -8,18 +8,18 @@
 
 package org.julia.jni.swig;
 
-public class SWIGTYPE_p_jl_module_t {
+public class SWIGTYPE_p_jl_code_instance_t {
   private transient long swigCPtr;
 
-  protected SWIGTYPE_p_jl_module_t(long cPtr, @SuppressWarnings("unused") boolean futureUse) {
+  protected SWIGTYPE_p_jl_code_instance_t(long cPtr, @SuppressWarnings("unused") boolean futureUse) {
     swigCPtr = cPtr;
   }
 
-  protected SWIGTYPE_p_jl_module_t() {
+  protected SWIGTYPE_p_jl_code_instance_t() {
     swigCPtr = 0;
   }
 
-  protected static long getCPtr(SWIGTYPE_p_jl_module_t obj) {
+  protected static long getCPtr(SWIGTYPE_p_jl_code_instance_t obj) {
     return (obj == null) ? 0 : obj.swigCPtr;
   }
 }

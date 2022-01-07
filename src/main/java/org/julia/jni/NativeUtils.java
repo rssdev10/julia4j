@@ -23,15 +23,16 @@
  */
 package org.julia.jni;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.ProviderNotFoundException;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A simple library class which helps with loading dynamic libraries stored in the
@@ -49,6 +50,7 @@ public class NativeUtils {
      */
     private static final int MIN_PREFIX_LENGTH = 3;
     public static final String NATIVE_FOLDER_PATH_PREFIX = "nativeutils";
+    public static final String JAVA_LIBRARY_PATH = "java.library.path";
 
     /**
      * Temporary directory which will contain the DLLs.
@@ -75,7 +77,8 @@ public class NativeUtils {
      * (restriction of {@link File#createTempFile(java.lang.String, java.lang.String)}).
      * @throws FileNotFoundException If the file could not be found inside the JAR.
      */
-    public static void loadLibraryFromJar(String path) throws IOException {
+    public static void loadLibraryFromJar(String path, String libraryPaths) throws IOException {
+        setupJavaLibraryPaths(libraryPaths);
 
         if (null == path || !path.startsWith("/")) {
             throw new IllegalArgumentException("The path has to be absolute (start with '/').");
@@ -110,6 +113,10 @@ public class NativeUtils {
 
         try {
             System.load(temp.getAbsolutePath());
+        } catch (UnsatisfiedLinkError e) {
+            throw new UnsatisfiedLinkError(
+                    String.format("%s\njava.library.path=%s\n",
+                    e.getMessage(), System.getProperty(JAVA_LIBRARY_PATH)));
         } finally {
             if (isPosixCompliant()) {
                 // Assume POSIX compliant file system, can be deleted after loading
@@ -119,6 +126,10 @@ public class NativeUtils {
                 temp.deleteOnExit();
             }
         }
+    }
+
+    public static void loadLibraryFromJar(String path) throws IOException {
+        loadLibraryFromJar(path, "");
     }
 
     private static boolean isPosixCompliant() {
@@ -175,11 +186,31 @@ public class NativeUtils {
             final Field lib = ClassLoader.class.getDeclaredField("loadedLibraryNames");
             lib.setAccessible(true);
             Object list = lib.get(ClassLoader.getSystemClassLoader());
-            if (list instanceof List)
+            if (list instanceof List<?>)
                 return (List<String>) list;
         } catch (IllegalAccessException | NoSuchFieldException e) {
             e.printStackTrace();
         }
         return Collections.emptyList();
+    }
+
+    private static void setupJavaLibraryPaths(String externalPaths) {
+        String javaLibraryPath = System.getProperty(JAVA_LIBRARY_PATH);
+        String javaHome = System.getProperty("java.home");
+//        if (!javaLibraryPath.contains(javaHome)) {
+        String javaLibPath = javaHome + File.separator + "lib";
+            final List<String> newSysPaths =
+                    new ArrayList<>(List.of(javaLibraryPath.split(File.pathSeparator)));
+            newSysPaths.add(javaLibPath);
+            newSysPaths.add(javaLibPath + File.separator + "server");
+            newSysPaths.addAll(List.of(externalPaths.split(File.pathSeparator)));
+
+            System.setProperty(JAVA_LIBRARY_PATH,
+                    newSysPaths.stream()
+                            .filter(s -> !s.isEmpty())
+                            .distinct()
+                            .collect(Collectors.joining(File.pathSeparator))
+            );
+//        }
     }
 }

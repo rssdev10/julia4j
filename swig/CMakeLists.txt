@@ -3,6 +3,7 @@ project(Julia4J VERSION 0.0.0.1 LANGUAGES C)
 
 find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})
+#find_package(Java COMPONENTS Development)
 find_package(JNI REQUIRED)
 
 include(./FindJULIA.cmake)
@@ -23,6 +24,8 @@ set_target_properties(julia4j PROPERTIES
   POSITION_INDEPENDENT_CODE ON)
 target_include_directories(julia4j PUBLIC ${JNI_INCLUDE_DIRS} ${Julia_INCLUDE_DIRS})
 target_link_libraries(julia4j ${JNI_LIBRARIES} ${Julia_LIBRARY} ${Julia_LIBRARY_DIR})
+
+# set(CMAKE_INSTALL_RPATH "@loader_path")
 
 string(TOLOWER ${CMAKE_SYSTEM_NAME} OUT_OS_NAME)
 install (TARGETS julia4j #${PROJECT_NAME}
