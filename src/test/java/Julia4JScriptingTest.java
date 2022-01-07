@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.script.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -55,7 +56,7 @@ public class Julia4JScriptingTest {
     }
 
     @Test
-    public void testReturnvalue() throws ScriptException {
+    public void testReturnValue() throws ScriptException {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine engine = manager.getEngineByName("julia");
 
@@ -82,5 +83,21 @@ public class Julia4JScriptingTest {
 
         Object result = engine.eval("a + b", newContext);
         assertEquals(12, Julia4J.jl_unbox_int64((SWIGTYPE_p_jl_value_t) result));
+    }
+
+    @Test
+    public void testReturnStringValue() throws ScriptException {
+        ScriptEngineManager manager = new ScriptEngineManager();
+        ScriptEngine engine = manager.getEngineByName("julia");
+
+        engine.put("x", "hello");
+        // print global variable "x"
+        engine.eval("res = join(fill(x, 10), \";\");");
+
+        SWIGTYPE_p_jl_value_t result = (SWIGTYPE_p_jl_value_t)engine.eval("res");
+        Julia4J.jl_show(result);
+
+        String str = Julia4J.jl_unbox_string((SWIGTYPE_p_jl_value_t) result);
+        assertEquals(String.join(";", Collections.nCopies(10, "hello")), str);
     }
 }
