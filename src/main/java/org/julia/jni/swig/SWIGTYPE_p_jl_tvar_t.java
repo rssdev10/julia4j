@@ -8,22 +8,22 @@
 
 package org.julia.jni.swig;
 
-public class SWIGTYPE_p_jl_datatype_t {
+public class SWIGTYPE_p_jl_tvar_t {
   private transient long swigCPtr;
 
-  protected SWIGTYPE_p_jl_datatype_t(long cPtr, @SuppressWarnings("unused") boolean futureUse) {
+  protected SWIGTYPE_p_jl_tvar_t(long cPtr, @SuppressWarnings("unused") boolean futureUse) {
     swigCPtr = cPtr;
   }
 
-  protected SWIGTYPE_p_jl_datatype_t() {
+  protected SWIGTYPE_p_jl_tvar_t() {
     swigCPtr = 0;
   }
 
-  protected static long getCPtr(SWIGTYPE_p_jl_datatype_t obj) {
+  protected static long getCPtr(SWIGTYPE_p_jl_tvar_t obj) {
     return (obj == null) ? 0 : obj.swigCPtr;
   }
 
-  protected static long swigRelease(SWIGTYPE_p_jl_datatype_t obj) {
+  protected static long swigRelease(SWIGTYPE_p_jl_tvar_t obj) {
     return (obj == null) ? 0 : obj.swigCPtr;
   }
 }
