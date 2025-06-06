@@ -1,41 +1,78 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        mavenLocal()
-    }
-}
-
 plugins {
     id 'java'
     id 'maven-publish'
 }
 
-group 'org.julia'
-version '0.0.2-SNAPSHOT'
+group = 'org.julia'
+version = '0.0.3.SNAPSHOT'
 
-sourceCompatibility = 1.11
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = group
+            groupId = project.group
             artifactId = rootProject.name
-            version = version
+            version = project.version
 
             from components.java
         }
     }
 }
 
+// Helper function to get Julia's lib directory
+def getJuliaLibPath() {
+    def juliaCmd = [
+        'julia', 
+        '-e', 
+        'print(abspath(joinpath(Sys.BINDIR, "..", "lib")))'
+    ]
+    def process = juliaCmd.execute()
+    process.waitFor()
+    if (process.exitValue() != 0) {
+        throw new GradleException("Failed to find Julia lib path: ${process.err.text}")
+    }
+    return process.text.trim()
+}
+
 test {
     useJUnitPlatform()
+
+    // Set library paths for all platforms
+    def juliaLibPath = getJuliaLibPath()
+    
+    // macOS specific configuration
+    if (org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        environment "DYLD_LIBRARY_PATH", juliaLibPath + (
+            System.getenv('DYLD_LIBRARY_PATH') 
+                ? ":" + System.getenv('DYLD_LIBRARY_PATH') 
+                : ""
+        )
+    }
+    // Linux specific configuration
+    else if (org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem.isLinux()) {
+        environment "LD_LIBRARY_PATH", juliaLibPath + (
+            System.getenv('LD_LIBRARY_PATH') 
+                ? ":" + System.getenv('LD_LIBRARY_PATH') 
+                : ""
+        )
+    }
+    // Windows specific configuration
+    else if (org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem.isWindows()) {
+        def currentPath = System.getenv('PATH') ?: ""
+        environment "PATH", juliaLibPath + File.pathSeparator + currentPath
+    }
 }
 
 dependencies {
-    testImplementation('org.junit.jupiter:junit-jupiter-api:5.8.2')
-    testImplementation('org.junit.jupiter:junit-jupiter-engine:5.8.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
 }

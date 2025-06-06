@@ -69,10 +69,15 @@ engine.eval("println(x);", newContext);
 
 For running: julia should be installed.
 
-For building with binaries: julia, julia-devel, Java 8, swig, gcc, make.
+For building with binaries: julia, julia-devel, Java >21, swig, gcc, make.
 
 ### How to build
-These sources doesn't include native binary libraries. But you can build them manually by [`swig/build.sh`](swig/build.sh) script.
+These sources doesn't include native binary libraries. But you can build them manually by [`swig/build.sh`](swig/build.sh) script. 
+```bash
+cd swig
+./build.sh
+```
+
 Also see [swig/lib_src/Makefile](swig/lib_src/Makefile)
 
 Next run `./gradlew build`
