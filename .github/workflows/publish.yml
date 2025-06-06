@@ -1,0 +1,114 @@
+name: Release Build Pipeline
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-native:
+    name: Build Native Library (${{ matrix.os }} - ${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            arch: x86_64
+            OUT_OS_NAME: linux
+          - os: ubuntu-22.04
+            arch: aarch64
+            OUT_OS_NAME: linux
+          - os: macos-12
+            arch: x86_64
+            OUT_OS_NAME: darwin
+          - os: macos-12
+            arch: arm64
+            OUT_OS_NAME: darwin
+          - os: windows-2022
+            arch: x86_64
+            OUT_OS_NAME: windows
+      fail-fast: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Julia
+      uses: julia-actions/setup-julia@v1
+      with:
+        version: '1.10'
+
+    - name: Setup JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          sudo apt-get update
+          sudo apt-get install -y cmake swig gcc g++
+        elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          brew update
+          brew install cmake swig
+        elif [[ "$RUNNER_OS" == "Windows" ]]; then
+          choco install cmake swig
+        fi
+
+    - name: Build native library
+      shell: bash
+      run: |
+        cd swig
+        ./build.sh
+        cd ..
+        echo "Library built at: $(pwd)/src/main/resources/native/64/${{ matrix.OUT_OS_NAME }}"
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: native-${{ matrix.OUT_OS_NAME }}-${{ matrix.arch }}
+        path: src/main/resources/native/64/${{ matrix.OUT_OS_NAME }}/
+        retention-days: 1
+
+  build-java:
+    name: Build Java Library
+    runs-on: ubuntu-22.04
+    needs: build-native
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: Download native artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: native-artifacts
+
+    - name: Assemble native libraries
+      shell: bash
+      run: |
+        for artifact in native-artifacts/*; do
+          os_arch=$(basename $artifact)
+          os=$(echo $os_arch | cut -d'-' -f2)
+          mkdir -p "src/main/resources/native/64/$os"
+          cp -R "$artifact"/* "src/main/resources/native/64/$os/"
+        done
+        echo "Assembled native libraries:"
+        find src/main/resources/native -type f
+
+    - name: Build Java library
+      run: ./gradlew build
+
+    - name: Upload Java artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: java-library
+        path: build/libs/*.jar
+        retention-days: 1
