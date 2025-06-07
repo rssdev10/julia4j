@@ -58,12 +58,12 @@ jobs:
       run: |
         if [[ "$RUNNER_OS" == "Linux" ]]; then
           sudo apt-get update
-          sudo apt-get install -y cmake make swig gcc g++
+          sudo apt-get install -y cmake swig gcc g++
         elif [[ "$RUNNER_OS" == "macOS" ]]; then
           brew update
-          brew install cmake make swig
+          brew install cmake swig
         elif [[ "$RUNNER_OS" == "Windows" ]]; then
-          choco install cmake make swig
+          choco install cmake swig
         fi
 
     - name: Build native library
