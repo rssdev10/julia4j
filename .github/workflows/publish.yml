@@ -1,0 +1,142 @@
+name: Release Build Pipeline
+
+on:
+  release:
+    types: [published, created]
+  workflow_dispatch:
+
+jobs:
+  build-native:
+    name: Build Native Library (${{ matrix.os }} - ${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            arch: x86_64
+            OUT_OS_NAME: linux
+          - os: ubuntu-22.04
+            arch: aarch64
+            OUT_OS_NAME: linux
+          - os: macos-12
+            arch: x86_64
+            OUT_OS_NAME: darwin
+          - os: macos-12
+            arch: arm64
+            OUT_OS_NAME: darwin
+          - os: windows-2022
+            arch: x86_64
+            OUT_OS_NAME: windows
+      fail-fast: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Add debug info for testing context
+    - name: Show Release Info
+      if: ${{ github.event_name == 'release' }}
+      run: |
+        echo "Release ID: ${{ github.event.release.id }}"
+        echo "Draft Status: ${{ github.event.release.draft }}"
+        echo "Tag: ${{ github.event.release.tag_name }}"
+
+    # Existing build steps remain unchanged
+    - name: Setup Julia
+      uses: julia-actions/setup-julia@v2
+      with:
+        version: '1.10'
+
+    - name: Setup JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          sudo apt-get update
+          sudo apt-get install -y cmake make swig gcc g++
+        elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          brew update
+          brew install cmake make swig
+        elif [[ "$RUNNER_OS" == "Windows" ]]; then
+          choco install cmake make swig
+        fi
+
+    - name: Build native library
+      shell: bash
+      run: |
+        cd swig
+        cmake .
+        make install
+        cd ..
+        echo "Library built at: $(pwd)/src/main/resources/native/64/${{ matrix.OUT_OS_NAME }}"
+
+    # Add artifact retention period based on release type
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: native-${{ matrix.OUT_OS_NAME }}-${{ matrix.arch }}
+        path: src/main/resources/native/64/${{ matrix.OUT_OS_NAME }}/
+        retention-days: ${{ github.event.release.draft && 7 || 1 }}
+
+  build-java:
+    name: Build Java Library
+    runs-on: ubuntu-22.04
+    needs: build-native
+    if: ${{ !cancelled() }}  # Run unless previous jobs were cancelled
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: Download native artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: native-artifacts
+
+    - name: Assemble native libraries
+      shell: bash
+      run: |
+        for artifact in native-artifacts/*; do
+          os_arch=$(basename $artifact)
+          os=$(echo $os_arch | cut -d'-' -f2)
+          mkdir -p "src/main/resources/native/64/$os"
+          cp -R "$artifact"/* "src/main/resources/native/64/$os/"
+        done
+        echo "Assembled native libraries:"
+        find src/main/resources/native -type f
+
+    - name: Build Java library
+      run: ./gradlew build
+
+    # Test artifact before final upload
+    - name: Test JAR (Example)
+      run: |
+        java -jar build/libs/*.jar --version
+        # Add your real validation commands here
+
+    # Conditional artifact upload
+    - name: Upload Java artifact
+      if: ${{ github.event.release.draft || github.event_name == 'workflow_dispatch' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: java-library
+        path: build/libs/*.jar
+        retention-days: 7
+
+    # Only attach to release when published
+    - name: Attach to Release
+      if: ${{ github.event_name == 'release' && !github.event.release.draft }}
+      uses: softprops/action-gh-release@v2
+      with:
+        files: build/libs/*.jar
