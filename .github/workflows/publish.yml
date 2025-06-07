@@ -71,8 +71,8 @@ jobs:
       run: |
         cd swig
         cmake .
-        make
-        make install
+        cmake --build . --config Release
+        cmake --install . --config Release
         cd ..
         echo "Library built at: $(pwd)/src/main/resources/native/64/${{ matrix.OUT_OS_NAME }}"
 
