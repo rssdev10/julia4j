@@ -11,21 +11,25 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories
         include:
           - os: ubuntu-24.04
-            arch: x86_64
+            arch: x64
             OUT_OS_NAME: linux
-          - os: ubuntu-24.04
-            arch: aarch64
+          - os: ubuntu-24.04-arm
+            arch: arm64
             OUT_OS_NAME: linux
-          - os: macos-15
-            arch: x86_64
+          - os: macos-13
+            arch: x64
             OUT_OS_NAME: darwin
           - os: macos-15
             arch: arm64
             OUT_OS_NAME: darwin
           - os: windows-2025
-            arch: x86_64
+            arch: x64
+            OUT_OS_NAME: windows
+          - os: windows-11-arm
+            arch: arm64
             OUT_OS_NAME: windows
       fail-fast: false
 
@@ -46,14 +50,14 @@ jobs:
       uses: julia-actions/setup-julia@v2
       with:
         version: '1.11'
-        arch: >-
-          ${{ 
-          matrix.arch == 'x86_64' && 'x64' ||
-          matrix.arch == 'aarch64' && 'aarch64' ||
-          (matrix.arch == 'arm64' && startsWith(matrix.os, 'macos-')) && 'aarch64' ||
-          (matrix.arch == 'arm64') && 'x64' ||
-          'x64'
-          }}
+        # arch: >-
+        #   ${{ 
+        #   matrix.arch == 'x86_64' && 'x64' ||
+        #   matrix.arch == 'aarch64' && 'aarch64' ||
+        #   (matrix.arch == 'arm64' && startsWith(matrix.os, 'macos-')) && 'aarch64' ||
+        #   (matrix.arch == 'arm64') && 'x64' ||
+        #   'x64'
+        #   }}
 
     - name: Setup JDK
       uses: actions/setup-java@v4
@@ -85,15 +89,16 @@ jobs:
       shell: bash
       run: |
         cd swig
-        if [[ "${{ matrix.os }}" == ubuntu-* && "${{ matrix.arch }}" == "aarch64" ]]; then
-          cmake -DJulia_PREFIX=$JULIA_DIR -DCMAKE_SYSTEM_PROCESSOR=aarch64 -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ .
-        elif [[ "${{ matrix.os }}" == macos-* && "${{ matrix.arch }}" == "x86_64" ]]; then
-          cmake -DJulia_PREFIX=$JULIA_DIR -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_SYSTEM_PROCESSOR=x86_64 .
-        elif [[ "${{ matrix.os }}" == macos-* && "${{ matrix.arch }}" == "arm64" ]]; then
-          cmake -DCMAKE_SYSTEM_PROCESSOR=aarch64 .
-        else
-          cmake -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} .
-        fi
+        # if [[ "${{ matrix.os }}" == ubuntu-* && "${{ matrix.arch }}" == "aarch64" ]]; then
+        #   cmake -DJulia_PREFIX=$JULIA_DIR -DCMAKE_SYSTEM_PROCESSOR=aarch64 -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ .
+        # elif [[ "${{ matrix.os }}" == macos-* && "${{ matrix.arch }}" == "x86_64" ]]; then
+        #   cmake -DJulia_PREFIX=$JULIA_DIR -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_SYSTEM_PROCESSOR=x86_64 .
+        # elif [[ "${{ matrix.os }}" == macos-* && "${{ matrix.arch }}" == "arm64" ]]; then
+        #   cmake -DCMAKE_SYSTEM_PROCESSOR=aarch64 .
+        # else
+        #   cmake -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} .
+        # fi
+        cmake .
         cmake --build . --config Release
         cmake --install . --config Release
         cd ..

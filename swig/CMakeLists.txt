@@ -3,7 +3,7 @@ project(Julia4J VERSION 0.0.0.1 LANGUAGES C)
 
 # Add MSVC fixes here
 if(MSVC)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /std:c17")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /std:clatest")
     add_definitions(
         -D_CRT_SECURE_NO_WARNINGS
         -D_ARM64_WORKAROUND_
@@ -106,7 +106,7 @@ if(ARCH_LOWER MATCHES "^(aarch64|arm64)$")
 elseif(ARCH_LOWER MATCHES "^arm")
   set(ARCH_FOLDER "arm")
 elseif(ARCH_LOWER MATCHES "^(x86_64|amd64)$")
-  set(ARCH_FOLDER "x86_64")
+  set(ARCH_FOLDER "x64")
 elseif(ARCH_LOWER MATCHES "^(x86|i[3-6]86)$")
   set(ARCH_FOLDER "x86")
 else()

@@ -178,8 +178,8 @@ public class NativeUtils {
             archFolder = "arm64";
         } else if (arch.contains("arm")) {
             archFolder = "arm";
-        } else if (arch.contains("x86_64") || arch.contains("amd64")) {
-            archFolder = "x86_64";
+        } else if (arch.contains("x86_64") || arch.contains("amd64") || arch.contains("x64")) {
+            archFolder = "x64";
         } else if (arch.matches("^(x86|i[3-6]86)$") || arch.contains("x86")) {
             archFolder = "x86";
         } else {
