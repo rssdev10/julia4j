@@ -2,7 +2,8 @@ name: Release Build Pipeline
 
 on:
   release:
-    types: [published]
+    types: [published, created]
+  workflow_dispatch:
 
 jobs:
   build-native:
@@ -32,13 +33,22 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    # Add debug info for testing context
+    - name: Show Release Info
+      if: ${{ github.event_name == 'release' }}
+      run: |
+        echo "Release ID: ${{ github.event.release.id }}"
+        echo "Draft Status: ${{ github.event.release.draft }}"
+        echo "Tag: ${{ github.event.release.tag_name }}"
+
+    # Existing build steps remain unchanged
     - name: Setup Julia
-      uses: julia-actions/setup-julia@v1
+      uses: julia-actions/setup-julia@v2
       with:
         version: '1.10'
 
     - name: Setup JDK
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '21'
@@ -64,30 +74,32 @@ jobs:
         cd ..
         echo "Library built at: $(pwd)/src/main/resources/native/64/${{ matrix.OUT_OS_NAME }}"
 
+    # Add artifact retention period based on release type
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: native-${{ matrix.OUT_OS_NAME }}-${{ matrix.arch }}
         path: src/main/resources/native/64/${{ matrix.OUT_OS_NAME }}/
-        retention-days: 1
+        retention-days: ${{ github.event.release.draft && 7 || 1 }}
 
   build-java:
     name: Build Java Library
     runs-on: ubuntu-22.04
     needs: build-native
+    if: ${{ !cancelled() }}  # Run unless previous jobs were cancelled
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
     - name: Setup JDK
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '21'
 
     - name: Download native artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         path: native-artifacts
 
@@ -106,9 +118,24 @@ jobs:
     - name: Build Java library
       run: ./gradlew build
 
+    # Test artifact before final upload
+    - name: Test JAR (Example)
+      run: |
+        java -jar build/libs/*.jar --version
+        # Add your real validation commands here
+
+    # Conditional artifact upload
     - name: Upload Java artifact
-      uses: actions/upload-artifact@v3
+      if: ${{ github.event.release.draft || github.event_name == 'workflow_dispatch' }}
+      uses: actions/upload-artifact@v4
       with:
         name: java-library
         path: build/libs/*.jar
-        retention-days: 1
+        retention-days: 7
+
+    # Only attach to release when published
+    - name: Attach to Release
+      if: ${{ github.event_name == 'release' && !github.event.release.draft }}
+      uses: softprops/action-gh-release@v2
+      with:
+        files: build/libs/*.jar
