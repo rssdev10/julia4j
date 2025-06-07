@@ -28,7 +28,7 @@ publishing {
     }
 }
 
-// Helper function to get Julia's lib directory
+// Helper function to get Julia's lib directory (cross-platform)
 def getJuliaLibPath() {
     def juliaCmd = [
         'julia',
@@ -52,21 +52,26 @@ def getOsName() {
     return 'other'
 }
 
-test {
+tasks.test {
     useJUnitPlatform()
 
-    def juliaLibPath = getJuliaLibPath()
-    def osName = getOsName()
+    testClassesDirs = testing.suites.test.sources.output.classesDirs
+    classpath = testing.suites.test.sources.runtimeClasspath
 
-    if (osName == 'mac') {
-        def current = System.getenv('DYLD_LIBRARY_PATH')
-        environment "DYLD_LIBRARY_PATH", juliaLibPath + (current ? ":" + current : "")
-    } else if (osName == 'linux') {
-        def current = System.getenv('LD_LIBRARY_PATH')
-        environment "LD_LIBRARY_PATH", juliaLibPath + (current ? ":" + current : "")
-    } else if (osName == 'windows') {
-        def current = System.getenv('PATH') ?: ""
-        environment "PATH", juliaLibPath + File.pathSeparator + current
+    doFirst {
+        def juliaLibPath = getJuliaLibPath()
+        def osName = getOsName()
+
+        if (osName == 'mac') {
+            def current = System.getenv('DYLD_LIBRARY_PATH')
+            environment "DYLD_LIBRARY_PATH", juliaLibPath + (current ? ":" + current : "")
+        } else if (osName == 'linux') {
+            def current = System.getenv('LD_LIBRARY_PATH')
+            environment "LD_LIBRARY_PATH", juliaLibPath + (current ? ":" + current : "")
+        } else if (osName == 'windows') {
+            def current = System.getenv('PATH') ?: ""
+            environment "PATH", juliaLibPath + File.pathSeparator + current
+        }
     }
 }
 
