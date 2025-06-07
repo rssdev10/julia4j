@@ -86,7 +86,7 @@ jobs:
       run: |
         cd swig
         if [[ "${{ matrix.os }}" == ubuntu-* && "${{ matrix.arch }}" == "aarch64" ]]; then
-          cmake -DCMAKE_SYSTEM_PROCESSOR=aarch64 -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ .
+          cmake -DJulia_PREFIX=$JULIA_DIR -DCMAKE_SYSTEM_PROCESSOR=aarch64 -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ .
         elif [[ "${{ matrix.os }}" == macos-* && "${{ matrix.arch }}" == "x86_64" ]]; then
           cmake -DJulia_PREFIX=$JULIA_DIR -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_SYSTEM_PROCESSOR=x86_64 .
         elif [[ "${{ matrix.os }}" == macos-* && "${{ matrix.arch }}" == "arm64" ]]; then
