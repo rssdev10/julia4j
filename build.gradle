@@ -33,7 +33,7 @@ def getJuliaLibPath() {
     def juliaCmd = [
         'julia',
         '-e',
-        'print(abspath(joinpath(dirname(Sys.BINDIR), "lib")))'
+        'print(abspath(joinpath(dirname(Sys.BINDIR), string(:lib))))'
     ]
     def process = juliaCmd.execute()
     process.waitFor()
