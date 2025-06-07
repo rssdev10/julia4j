@@ -96,8 +96,11 @@ else()
   message(FATAL_ERROR "Unsupported OS: ${CMAKE_SYSTEM_NAME}")
 endif()
 
-# Determine architecture folder name
-string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" ARCH_LOWER)
+message(STATUS "CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
+message(STATUS "CMAKE_HOST_SYSTEM_PROCESSOR: ${CMAKE_HOST_SYSTEM_PROCESSOR}")
+
+# Use host processor for native builds
+string(TOLOWER "${CMAKE_HOST_SYSTEM_PROCESSOR}" ARCH_LOWER)
 if(ARCH_LOWER MATCHES "^(aarch64|arm64)$")
   set(ARCH_FOLDER "arm64")
 elseif(ARCH_LOWER MATCHES "^arm")
@@ -107,7 +110,7 @@ elseif(ARCH_LOWER MATCHES "^(x86_64|amd64)$")
 elseif(ARCH_LOWER MATCHES "^(x86|i[3-6]86)$")
   set(ARCH_FOLDER "x86")
 else()
-  message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
+  message(FATAL_ERROR "Unsupported architecture: ${ARCH_LOWER}")
 endif()
 
 set(NATIVE_DEST "${PROJECT_SOURCE_DIR}/../src/main/resources/native/${OS_FOLDER}/${ARCH_FOLDER}/")
