@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'java-library'
     id 'maven-publish'
 }
 
@@ -69,6 +69,15 @@ test {
     else if (org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem.isWindows()) {
         def currentPath = System.getenv('PATH') ?: ""
         environment "PATH", juliaLibPath + File.pathSeparator + currentPath
+    }
+}
+
+tasks.named('jar') {
+    manifest {
+        attributes(
+            'Automatic-Module-Name'      : 'JuliaEngine',
+            'Implementation-Version'     : project.version
+        )
     }
 }
 

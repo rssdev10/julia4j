@@ -123,8 +123,9 @@ jobs:
     # Test artifact before final upload
     - name: Test JAR (Example)
       run: |
-        java -jar build/libs/*.jar --version
-        # Add your real validation commands here
+        # java -jar build/libs/*.jar --version
+        jar xf build/libs/*.jar META-INF/MANIFEST.MF
+        grep 'Implementation-Version' META-INF/MANIFEST.MF | awk -F ': ' '{print $2}'
 
     # Conditional artifact upload
     - name: Upload Java artifact
