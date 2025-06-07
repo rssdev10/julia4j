@@ -3,7 +3,7 @@ project(Julia4J VERSION 0.0.0.1 LANGUAGES C)
 
 # Add MSVC fixes here
 if(MSVC)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /std:clatest")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /std:clatest /experimental:c11atomics")
     add_definitions(
         -D_CRT_SECURE_NO_WARNINGS
         -D_ARM64_WORKAROUND_
