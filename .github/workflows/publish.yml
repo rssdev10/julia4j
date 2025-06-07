@@ -46,6 +46,14 @@ jobs:
       uses: julia-actions/setup-julia@v2
       with:
         version: '1.11'
+        arch: >-
+          ${{ 
+          matrix.arch == 'x86_64' && 'x64' ||
+          matrix.arch == 'aarch64' && 'aarch64' ||
+          (matrix.arch == 'arm64' && startsWith(matrix.os, 'macos-')) && 'aarch64' ||
+          (matrix.arch == 'arm64') && 'x64' ||
+          'x64'
+          }}
 
     - name: Setup JDK
       uses: actions/setup-java@v4
@@ -73,16 +81,6 @@ jobs:
           choco install cmake swig
         fi
 
-    # Download x86_64 Julia for macOS cross build
-    - name: Download x86_64 Julia for macOS
-      if: ${{ startsWith(matrix.os, 'macos-') && matrix.arch == 'x86_64' }}
-      run: |
-        curl -fsSL https://install.julialang.org | sh -s -- --yes
-        export PATH="$HOME/.juliaup/bin:$PATH"
-        juliaup add release
-        JULIA_DIR="$HOME/.juliaup/julia-$(juliaup default-path release)"
-        echo "JULIA_DIR=$JULIA_DIR" >> $GITHUB_ENV
-
     - name: Build native library
       shell: bash
       run: |
@@ -91,6 +89,8 @@ jobs:
           cmake -DCMAKE_SYSTEM_PROCESSOR=aarch64 -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ .
         elif [[ "${{ matrix.os }}" == macos-* && "${{ matrix.arch }}" == "x86_64" ]]; then
           cmake -DJulia_PREFIX=$JULIA_DIR -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_SYSTEM_PROCESSOR=x86_64 .
+        elif [[ "${{ matrix.os }}" == macos-* && "${{ matrix.arch }}" == "arm64" ]]; then
+          cmake -DCMAKE_SYSTEM_PROCESSOR=aarch64 .
         else
           cmake -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} .
         fi
