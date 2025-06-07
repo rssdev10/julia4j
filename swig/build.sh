@@ -22,8 +22,9 @@ echo $JAVA_HOME
 # export PATH=$PATH:$SWIG_LIB
 # cmake . && make clean && make install
 
-# cmake --build . --target clean
-# rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake Makefile
+cmake --build . --target clean
+rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake Makefile
+
 cmake .
 cmake --build . --config Release -v
 cmake --install . --config Release

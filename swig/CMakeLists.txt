@@ -5,6 +5,7 @@ project(Julia4J VERSION 0.0.0.1 LANGUAGES C)
 if(MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /std:c17")
     add_definitions(
+        -D__STDC_NO_ATOMICS__
         -D_CRT_SECURE_NO_WARNINGS
         -D_ARM64_WORKAROUND_
     )

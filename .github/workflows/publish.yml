@@ -70,7 +70,13 @@ jobs:
       shell: bash
       run: |
         cd swig
-        cmake -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} .
+        if [[ "${{ matrix.os }}" == ubuntu-* && "${{ matrix.arch }}" == "aarch64" ]]; then
+          cmake -DCMAKE_SYSTEM_PROCESSOR=aarch64 -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ .
+        elif [[ "${{ matrix.os }}" == macos-* && "${{ matrix.arch }}" == "x86_64" ]]; then
+          cmake -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_SYSTEM_PROCESSOR=x86_64 .
+        else
+          cmake -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} .
+        fi
         cmake --build . --config Release
         cmake --install . --config Release
         cd ..
