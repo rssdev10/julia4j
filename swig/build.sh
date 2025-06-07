@@ -18,4 +18,12 @@ echo $JAVA_HOME
 # make && \
 # mv libjulia4j.jnilib ../src/main/resources/native/64/darwin/
 
-cmake . && make clean && make install
+# export SWIG_LIB="$(brew --prefix swig)/share/swig/$(swig -version | awk '/Version/{print $NF}')"
+# export PATH=$PATH:$SWIG_LIB
+# cmake . && make clean && make install
+
+# cmake --build . --target clean
+# rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake Makefile
+cmake .
+cmake --build . --config Release -v
+cmake --install . --config Release

@@ -154,26 +154,53 @@ public class NativeUtils {
         return generatedDir;
     }
 
+    /**
+     * Returns the resource path for a native library based on the current OS and architecture.
+     * Example: /native/linux/x86_64/libfoo.so
+     */
     public static String libnameToPlatform(String libname) {
-
-        String path = "/native/";
-        if (System.getProperty("os.arch").toLowerCase().endsWith("64")) {
-            path += "64/";
-        } else {
-            throw new IllegalArgumentException("Not support this arch");
-        }
         String osName = System.getProperty("os.name").toLowerCase();
-        if (osName.startsWith("mac os")) {
-            path += "darwin/" + libname + ".jnilib";
-        } else if (osName.startsWith("linux")) {
-            path += "linux/" + libname + ".so";
-        } else if (osName.startsWith("windows")) {
-            path += "windows/" + libname + ".dll";
+        String arch = System.getProperty("os.arch").toLowerCase();
+
+        String osFolder;
+        if (osName.contains("mac")) {
+            osFolder = "darwin";
+        } else if (osName.contains("linux")) {
+            osFolder = "linux";
+        } else if (osName.contains("windows")) {
+            osFolder = "windows";
         } else {
-            throw new IllegalArgumentException("Not support this OS");
+            throw new IllegalArgumentException("Unsupported OS: " + osName);
         }
 
-        return path;
+        String archFolder;
+        if (arch.contains("aarch64") || arch.contains("arm64")) {
+            archFolder = "arm64";
+        } else if (arch.contains("arm")) {
+            archFolder = "arm";
+        } else if (arch.contains("x86_64") || arch.contains("amd64")) {
+            archFolder = "x86_64";
+        } else if (arch.matches("^(x86|i[3-6]86)$") || arch.contains("x86")) {
+            archFolder = "x86";
+        } else {
+            throw new IllegalArgumentException("Unsupported architecture: " + arch);
+        }
+
+        String extension;
+        if (osFolder.equals("darwin")) {
+            extension = ".jnilib";
+        } else if (osFolder.equals("linux")) {
+            extension = ".so";
+        } else if (osFolder.equals("windows")) {
+            extension = ".dll";
+        } else {
+            throw new IllegalArgumentException("Unknown extension for OS: " + osFolder);
+        }
+
+        // On Windows, libraries are usually named without "lib" prefix
+        String fileName = (osFolder.equals("windows") ? "" : "lib") + libname + extension;
+
+        return "/native/" + osFolder + "/" + archFolder + "/" + fileName;
     }
 
     /**

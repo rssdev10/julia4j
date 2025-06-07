@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'org.julia'
-version = '0.0.3.SNAPSHOT'
+version = '0.0.3-SNAPSHOT'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -31,8 +31,8 @@ publishing {
 // Helper function to get Julia's lib directory
 def getJuliaLibPath() {
     def juliaCmd = [
-        'julia', 
-        '-e', 
+        'julia',
+        '-e',
         'print(abspath(joinpath(Sys.BINDIR, "..", "lib")))'
     ]
     def process = juliaCmd.execute()
@@ -43,40 +43,38 @@ def getJuliaLibPath() {
     return process.text.trim()
 }
 
+// Helper to detect OS in a stable way
+def getOsName() {
+    def os = System.getProperty('os.name').toLowerCase()
+    if (os.contains('mac')) return 'mac'
+    if (os.contains('win')) return 'windows'
+    if (os.contains('nux')) return 'linux'
+    return 'other'
+}
+
 test {
     useJUnitPlatform()
 
-    // Set library paths for all platforms
     def juliaLibPath = getJuliaLibPath()
-    
-    // macOS specific configuration
-    if (org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        environment "DYLD_LIBRARY_PATH", juliaLibPath + (
-            System.getenv('DYLD_LIBRARY_PATH') 
-                ? ":" + System.getenv('DYLD_LIBRARY_PATH') 
-                : ""
-        )
-    }
-    // Linux specific configuration
-    else if (org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem.isLinux()) {
-        environment "LD_LIBRARY_PATH", juliaLibPath + (
-            System.getenv('LD_LIBRARY_PATH') 
-                ? ":" + System.getenv('LD_LIBRARY_PATH') 
-                : ""
-        )
-    }
-    // Windows specific configuration
-    else if (org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem.isWindows()) {
-        def currentPath = System.getenv('PATH') ?: ""
-        environment "PATH", juliaLibPath + File.pathSeparator + currentPath
+    def osName = getOsName()
+
+    if (osName == 'mac') {
+        def current = System.getenv('DYLD_LIBRARY_PATH')
+        environment "DYLD_LIBRARY_PATH", juliaLibPath + (current ? ":" + current : "")
+    } else if (osName == 'linux') {
+        def current = System.getenv('LD_LIBRARY_PATH')
+        environment "LD_LIBRARY_PATH", juliaLibPath + (current ? ":" + current : "")
+    } else if (osName == 'windows') {
+        def current = System.getenv('PATH') ?: ""
+        environment "PATH", juliaLibPath + File.pathSeparator + current
     }
 }
 
 tasks.named('jar') {
     manifest {
         attributes(
-            'Automatic-Module-Name'      : 'JuliaEngine',
-            'Implementation-Version'     : project.version
+            'Automatic-Module-Name': 'JuliaEngine',
+            'Implementation-Version': project.version
         )
     }
 }
