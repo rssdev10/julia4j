@@ -70,7 +70,7 @@ jobs:
       shell: bash
       run: |
         cd swig
-        cmake .
+        cmake -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} .
         cmake --build . --config Release
         cmake --install . --config Release
         cd ..
