@@ -143,7 +143,7 @@ jobs:
       run: ./gradlew build
 
     # Test artifact before final upload
-    - name: Test JAR (Example)
+    - name: Test presence of JAR
       run: |
         # java -jar build/libs/*.jar --version
         jar xf build/libs/*.jar META-INF/MANIFEST.MF
