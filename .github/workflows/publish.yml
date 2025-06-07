@@ -12,19 +12,19 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-22.04
+          - os: ubuntu-24.04
             arch: x86_64
             OUT_OS_NAME: linux
-          - os: ubuntu-22.04
+          - os: ubuntu-24.04
             arch: aarch64
             OUT_OS_NAME: linux
-          - os: macos-12
+          - os: macos-15
             arch: x86_64
             OUT_OS_NAME: darwin
-          - os: macos-12
+          - os: macos-15
             arch: arm64
             OUT_OS_NAME: darwin
-          - os: windows-2022
+          - os: windows-2025
             arch: x86_64
             OUT_OS_NAME: windows
       fail-fast: false
@@ -45,7 +45,7 @@ jobs:
     - name: Setup Julia
       uses: julia-actions/setup-julia@v2
       with:
-        version: '1.10'
+        version: '1.11'
 
     - name: Setup JDK
       uses: actions/setup-java@v4
@@ -71,6 +71,7 @@ jobs:
       run: |
         cd swig
         cmake .
+        make
         make install
         cd ..
         echo "Library built at: $(pwd)/src/main/resources/native/64/${{ matrix.OUT_OS_NAME }}"
@@ -85,7 +86,7 @@ jobs:
 
   build-java:
     name: Build Java Library
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: build-native
     if: ${{ !cancelled() }}  # Run unless previous jobs were cancelled
 
