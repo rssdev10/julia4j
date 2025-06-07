@@ -11,22 +11,26 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories
         include:
-          - os: ubuntu-22.04
-            arch: x86_64
+          - os: ubuntu-24.04
+            arch: x64
             OUT_OS_NAME: linux
-          - os: ubuntu-22.04
-            arch: aarch64
+          - os: ubuntu-24.04-arm
+            arch: arm64
             OUT_OS_NAME: linux
-          - os: macos-12
-            arch: x86_64
+          - os: macos-13
+            arch: x64
             OUT_OS_NAME: darwin
-          - os: macos-12
+          - os: macos-15
             arch: arm64
             OUT_OS_NAME: darwin
-          - os: windows-2022
-            arch: x86_64
+          - os: windows-2025
+            arch: x64
             OUT_OS_NAME: windows
+          # - os: windows-11-arm
+          #   arch: arm64
+          #   OUT_OS_NAME: windows
       fail-fast: false
 
     steps:
@@ -45,7 +49,7 @@ jobs:
     - name: Setup Julia
       uses: julia-actions/setup-julia@v2
       with:
-        version: '1.10'
+        version: '1.11'
 
     - name: Setup JDK
       uses: actions/setup-java@v4
@@ -53,17 +57,24 @@ jobs:
         distribution: 'temurin'
         java-version: '21'
 
+    # Install cross toolchain for aarch64 on Ubuntu
+    - name: Install cross toolchain (aarch64)
+      if: ${{ startsWith(matrix.os, 'ubuntu-') && matrix.arch == 'aarch64' }}
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+
     - name: Install dependencies
       shell: bash
       run: |
         if [[ "$RUNNER_OS" == "Linux" ]]; then
           sudo apt-get update
-          sudo apt-get install -y cmake make swig gcc g++
+          sudo apt-get install -y cmake swig gcc g++
         elif [[ "$RUNNER_OS" == "macOS" ]]; then
           brew update
-          brew install cmake make swig
+          brew install cmake swig
         elif [[ "$RUNNER_OS" == "Windows" ]]; then
-          choco install cmake make swig
+          choco install cmake swig
         fi
 
     - name: Build native library
@@ -71,21 +82,32 @@ jobs:
       run: |
         cd swig
         cmake .
-        make install
+        cmake --build . --config Release
+        cmake --install . --config Release
         cd ..
-        echo "Library built at: $(pwd)/src/main/resources/native/64/${{ matrix.OUT_OS_NAME }}"
+        echo "Library built at: $(pwd)/src/main/resources/native/${{ matrix.OUT_OS_NAME }}/${{ matrix.arch }}"
+
+    - name: Local test of native library
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          ./gradlew.bat test
+        else
+          ./gradlew test
+        fi
+        echo "Native library tests passed."
 
     # Add artifact retention period based on release type
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: native-${{ matrix.OUT_OS_NAME }}-${{ matrix.arch }}
-        path: src/main/resources/native/64/${{ matrix.OUT_OS_NAME }}/
+        path: src/main/resources/native/${{ matrix.OUT_OS_NAME }}/${{ matrix.arch }}/
         retention-days: ${{ github.event.release.draft && 7 || 1 }}
 
   build-java:
     name: Build Java Library
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: build-native
     if: ${{ !cancelled() }}  # Run unless previous jobs were cancelled
 
@@ -110,8 +132,9 @@ jobs:
         for artifact in native-artifacts/*; do
           os_arch=$(basename $artifact)
           os=$(echo $os_arch | cut -d'-' -f2)
-          mkdir -p "src/main/resources/native/64/$os"
-          cp -R "$artifact"/* "src/main/resources/native/64/$os/"
+          arch=$(echo $os_arch | cut -d'-' -f3)
+          mkdir -p "src/main/resources/native/$os/$arch"
+          cp -R "$artifact"/* "src/main/resources/native/$os/$arch/"
         done
         echo "Assembled native libraries:"
         find src/main/resources/native -type f
@@ -120,17 +143,18 @@ jobs:
       run: ./gradlew build
 
     # Test artifact before final upload
-    - name: Test JAR (Example)
+    - name: Test presence of JAR
       run: |
-        java -jar build/libs/*.jar --version
-        # Add your real validation commands here
+        # java -jar build/libs/*.jar --version
+        jar xf build/libs/*.jar META-INF/MANIFEST.MF
+        grep 'Implementation-Version' META-INF/MANIFEST.MF | awk -F ': ' '{print $2}'
 
     # Conditional artifact upload
     - name: Upload Java artifact
       if: ${{ github.event.release.draft || github.event_name == 'workflow_dispatch' }}
       uses: actions/upload-artifact@v4
       with:
-        name: java-library
+        name: julia4j-crossplatform-jar
         path: build/libs/*.jar
         retention-days: 7
 

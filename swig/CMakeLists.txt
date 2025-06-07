@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.18)
 project(Julia4J VERSION 0.0.0.1 LANGUAGES C)
 
+# Add MSVC fixes here
+if(MSVC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /std:clatest /experimental:c11atomics")
+    add_definitions(
+        -D_CRT_SECURE_NO_WARNINGS
+        -D_ARM64_WORKAROUND_
+    )
+endif()
+
 find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})
 
@@ -76,16 +85,46 @@ string(TOLOWER "${CMAKE_SYSTEM_NAME}" OUT_OS_NAME)
 
 cmake_policy(SET CMP0177 NEW)
 
+# Determine OS folder name
+if(APPLE)
+  set(OS_FOLDER "darwin")
+elseif(WIN32)
+  set(OS_FOLDER "windows")
+elseif(UNIX)
+  set(OS_FOLDER "linux")
+else()
+  message(FATAL_ERROR "Unsupported OS: ${CMAKE_SYSTEM_NAME}")
+endif()
+
+message(STATUS "CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
+message(STATUS "CMAKE_HOST_SYSTEM_PROCESSOR: ${CMAKE_HOST_SYSTEM_PROCESSOR}")
+
+# Use host processor for native builds
+string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" ARCH_LOWER)
+if(ARCH_LOWER MATCHES "^(aarch64|arm64)$")
+  set(ARCH_FOLDER "arm64")
+elseif(ARCH_LOWER MATCHES "^arm")
+  set(ARCH_FOLDER "arm")
+elseif(ARCH_LOWER MATCHES "^(x86_64|amd64)$")
+  set(ARCH_FOLDER "x64")
+elseif(ARCH_LOWER MATCHES "^(x86|i[3-6]86)$")
+  set(ARCH_FOLDER "x86")
+else()
+  message(FATAL_ERROR "Unsupported architecture: ${ARCH_LOWER}")
+endif()
+
+set(NATIVE_DEST "${PROJECT_SOURCE_DIR}/../src/main/resources/native/${OS_FOLDER}/${ARCH_FOLDER}/")
+
 if(WIN32)
   install(
     TARGETS julia4j
-    RUNTIME DESTINATION "${PROJECT_SOURCE_DIR}/../src/main/resources/native/64/${OUT_OS_NAME}/"
-    ARCHIVE DESTINATION "${PROJECT_SOURCE_DIR}/../src/main/resources/native/64/${OUT_OS_NAME}/"
+    RUNTIME DESTINATION "${NATIVE_DEST}"
+    ARCHIVE DESTINATION "${NATIVE_DEST}"
   )
 else()
   install(
     TARGETS julia4j
-    LIBRARY DESTINATION "${PROJECT_SOURCE_DIR}/../src/main/resources/native/64/${OUT_OS_NAME}/"
-    ARCHIVE DESTINATION "${PROJECT_SOURCE_DIR}/../src/main/resources/native/64/${OUT_OS_NAME}/"
+    LIBRARY DESTINATION "${NATIVE_DEST}"
+    ARCHIVE DESTINATION "${NATIVE_DEST}"
   )
 endif()

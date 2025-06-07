@@ -13,7 +13,7 @@ import java.io.IOException;
 public class Julia4JJNITest {
     static {
         try {
-            NativeUtils.loadLibraryFromJar(NativeUtils.libnameToPlatform("libjulia4j"));
+            NativeUtils.loadLibraryFromJar(NativeUtils.libnameToPlatform("julia4j"));
         } catch (IOException e) {
             e.printStackTrace();
         }

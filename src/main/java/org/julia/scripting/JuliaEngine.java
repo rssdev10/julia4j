@@ -16,7 +16,7 @@ import java.io.Reader;
 public class JuliaEngine  extends AbstractScriptEngine {
     static {
         try {
-            NativeUtils.loadLibraryFromJar(NativeUtils.libnameToPlatform("libjulia4j"));
+            NativeUtils.loadLibraryFromJar(NativeUtils.libnameToPlatform("julia4j"));
         } catch (IOException e) {
             e.printStackTrace();
         }
